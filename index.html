@@ -2,62 +2,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Enkie01 Chat Overlay</title>
   <style>
     body {
       margin: 0;
+      padding: 10px;
       background: transparent;
-      overflow: hidden;
       font-family: Arial, sans-serif;
+      color: white;
+      overflow: hidden;
     }
     #chat {
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      height: 100vh;
-      padding: 10px;
-      color: white;
+      gap: 10px;
     }
     .message {
-      background: rgba(0, 0, 0, 0.6);
-      margin-top: 5px;
+      background: rgba(0,0,0,0.6);
       padding: 8px 12px;
-      border-radius: 12px;
-      animation: fadein 0.5s;
+      border-radius: 10px;
+      animation: fadeIn 0.5s;
+      word-wrap: break-word;
     }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
     }
   </style>
 </head>
 <body>
-  <div id="chat"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tmi.js/1.8.5/tmi.min.js"></script>
-  <script>
-    const chat = document.getElementById('chat');
-    const maxMessages = 4;
+<div id="chat"></div>
 
-    const client = new tmi.Client({
-      channels: [ 'enkie01' ]
-    });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tmi.js/1.8.5/tmi.min.js"></script>
+<script>
+  const client = new tmi.Client({
+    channels: [ 'enkie01' ]
+  });
 
-    client.connect();
+  client.connect();
 
-    client.on('message', (channel, tags, message, self) => {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'message';
-      msgDiv.innerText = `${tags['display-name']}: ${message}`;
-      chat.appendChild(msgDiv);
+  const chat = document.getElementById('chat');
+  const MAX_MESSAGES = 4;
 
-      // Remove old messages if over limit
-      if (chat.children.length > maxMessages) {
-        chat.removeChild(chat.firstChild);
-      }
-    });
-  </script>
+  client.on('message', (channel, tags, message, self) => {
+    if (self) return;
+
+    const msg = document.createElement('div');
+    msg.className = 'message';
+    msg.innerHTML = `<strong>${tags['display-name']}:</strong> ${message}`;
+
+    chat.appendChild(msg);
+
+    if (chat.children.length > MAX_MESSAGES) {
+      chat.removeChild(chat.children[0]);
+    }
+  });
+</script>
+
 </body>
 </html>
